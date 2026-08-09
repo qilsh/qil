@@ -1,0 +1,31 @@
+[workspace]
+# TODO: members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# TODO: rust-version =
+description = "A git-native TTRPG character sheet TUI"
+# TODO: documentation =
+readme = "README.md"
+# TODO: homepage = "https://qil.sh"
+repository = "https://github.com/dollusion/qil"
+license = "GPL-3.0-or-later"
+keywords = ["ttrpg", "dnd", "rpg", "character-sheet", "version-control"]
+categories = ["command-line-utilities", "games"]
+
+[package]
+name = "qil"
+version.workspace = true
+edition.workspace = true
+# TODO: rust-version.workspace = true
+description.workspace = true
+# TODO: documentation.workspace = true
+readme.workspace = true
+# TODO: homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
