@@ -1,0 +1,39 @@
+[graph]
+targets = [
+    # Linux
+    "x86_64-unknown-linux-musl",
+    "aarch64-unknown-linux-musl",
+    # macOS
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+    # Windows
+    "x86_64-pc-windows-msvc",
+    "aarch64-pc-windows-msvc",
+]
+all-features = true
+
+[advisories]
+unmaintained = "workspace"
+unsound = "all"
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[bans.workspace-dependencies]
+include-path-dependencies = true
+
+[bans.std-replacements]
+
+[licenses]
+allow = [
+    # "MIT",
+    # "Apache-2.0",
+    # "Apache-2.0 WITH LLVM-exception",
+    "GPL-3.0-or-later",
+]
+confidence-threshold = 0.93
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
