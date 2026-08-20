@@ -9,7 +9,7 @@ description = "A git-native TTRPG character sheet TUI"
 # TODO: documentation =
 readme = "README.md"
 # TODO: homepage = "https://qil.sh"
-repository = "https://github.com/dollusion/qil"
+repository = "https://github.com/qilsh/qil"
 license = "GPL-3.0-or-later"
 keywords = ["ttrpg", "dnd", "rpg", "character-sheet", "version-control"]
 categories = ["command-line-utilities", "games"]
@@ -28,4 +28,12 @@ license.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+[workspace.dependencies]
+
 [dependencies]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[lints]
+workspace = true

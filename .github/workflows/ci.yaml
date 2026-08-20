@@ -5,54 +5,63 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  format:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-
-      - uses: actions/cache@v6
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.cargo/.crates.toml
-            ~/.cargo/.crates2.json
-            target/
-          key: ${{ runner.os }}-cargo-test-${{ hashFiles('**/Cargo.toml') }}
+          persist-credentials: false
 
-      - run: cargo test --workspace --all-features
+      - run: cargo fmt --all --check
 
   clippy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-
-      - uses: actions/cache@v6
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.cargo/.crates.toml
-            ~/.cargo/.crates2.json
-            target/
-          key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.toml') }}
+          persist-credentials: false
 
-      - run: cargo clippy --workspace --all-features -- -D warnings
+      - uses: ./.github/actions/cargo-cache
+        with:
+          cache-suffix: clippy
 
-  format:
+      - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - run: cargo fmt --all --check
+      - uses: ./.github/actions/cargo-cache
+        with:
+          cache-suffix: test
+
+      - run: cargo test --workspace --all-targets --all-features --locked
+
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/cargo-cache
+        with:
+          cache-suffix: doc
+
+      - run: cargo doc --workspace --all-features --no-deps --locked
+        env:
+          RUSTDOCFLAGS: "-D warnings"
