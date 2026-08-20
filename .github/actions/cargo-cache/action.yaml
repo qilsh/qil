@@ -1,7 +1,9 @@
 name: cargo-cache
 
 inputs:
-  cache-suffix:
+  target:
+    required: true
+  scope:
     required: true
 
 runs:
@@ -14,14 +16,14 @@ runs:
           ~/.cargo/registry/index/
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
-        key: ${{ runner.os }}-cargo-deps-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ inputs.target }}-cargo-deps-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
-          ${{ runner.os }}-cargo-deps-
+          ${{ inputs.target }}-cargo-deps-
 
     - name: cache build
       uses: actions/cache@v6
       with:
         path: target/
-        key: ${{ runner.os }}-cargo-build-${{ inputs.cache-suffix }}-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
-          ${{ runner.os }}-cargo-build-${{ inputs.cache-suffix }}-
+          ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-

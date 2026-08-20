@@ -13,8 +13,9 @@ env:
 
 jobs:
   format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v7
         with:
@@ -23,36 +24,82 @@ jobs:
       - run: cargo fmt --all --check
 
   clippy:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+          - target: aarch64-apple-darwin
+            runner: macos-26
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2025
+
+    name: clippy-${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
+      - run: rustup target add ${{ matrix.target }}
+
       - uses: ./.github/actions/cargo-cache
         with:
-          cache-suffix: clippy
+          target: ${{ matrix.target }}
+          scope: clippy
 
-      - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      - run: >
+          cargo clippy
+          --workspace
+          --all-targets
+          --all-features
+          --locked
+          --target ${{ matrix.target }}
+          -- -D warnings
 
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+          - target: aarch64-apple-darwin
+            runner: macos-26
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2025
+
+    name: test-${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
+      - run: rustup target add ${{ matrix.target }}
+
       - uses: ./.github/actions/cargo-cache
         with:
-          cache-suffix: test
+          target: ${{ matrix.target }}
+          scope: test
 
-      - run: cargo test --workspace --all-targets --all-features --locked
+      - run: >
+          cargo test
+          --workspace
+          --all-targets
+          --all-features
+          --locked
+          --target ${{ matrix.target }}
 
   docs:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,8 +107,14 @@ jobs:
 
       - uses: ./.github/actions/cargo-cache
         with:
-          cache-suffix: doc
+          target: x86_64-unknown-linux-gnu
+          scope: docs
 
-      - run: cargo doc --workspace --all-features --no-deps --locked
+      - run: >
+          cargo doc
+          --workspace
+          --all-features
+          --no-deps
+          --locked
         env:
           RUSTDOCFLAGS: "-D warnings"
