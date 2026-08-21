@@ -24,6 +24,7 @@ runs:
       uses: actions/cache@v6
       with:
         path: target/
-        key: ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
         restore-keys: |
+          ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-${{ hashFiles('**/Cargo.lock') }}-
           ${{ inputs.target }}-cargo-build-${{ inputs.scope }}-
