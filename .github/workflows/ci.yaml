@@ -60,13 +60,6 @@ jobs:
           --target ${{ matrix.target }}
           -- -D warnings
 
-      - name: inspect cargo cache
-        shell: bash
-        run: |
-          echo "HOME=$HOME"
-          echo "CARGO_HOME=${CARGO_HOME:-<unset>}"
-          find "$HOME/.cargo" -maxdepth 3 -type d -print || true
-
   test:
     strategy:
       fail-fast: false
@@ -102,13 +95,6 @@ jobs:
           --all-features
           --locked
           --target ${{ matrix.target }}
-
-      - name: inspect cargo cache
-        shell: bash
-        run: |
-          echo "HOME=$HOME"
-          echo "CARGO_HOME=${CARGO_HOME:-<unset>}"
-          find "$HOME/.cargo" -maxdepth 3 -type d -print || true
 
   docs:
     runs-on: ubuntu-24.04
