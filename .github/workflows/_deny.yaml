@@ -1,0 +1,30 @@
+name: deny
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  deny:
+    strategy:
+      matrix:
+        checks:
+          - advisories
+          - bans licenses sources
+
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    # Prevent sudden announcement of a new advisory from failing ci:
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check ${{ matrix.checks }}

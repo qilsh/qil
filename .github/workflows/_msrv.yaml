@@ -1,0 +1,47 @@
+name: msrv
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  msrv:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+          - target: aarch64-apple-darwin
+            runner: macos-26
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2025
+
+    name: msrv (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: taiki-e/install-action@cargo-hack
+
+      - uses: ./.github/actions/cargo-cache
+        with:
+          target: ${{ matrix.target }}
+          scope: msrv
+
+      - run: >
+          cargo hack check
+          --rust-version
+          --feature-powerset
+          --no-dev-deps
+          --workspace
+          --all-targets
+          --keep-going
+          --target ${{ matrix.target }}
+          --locked

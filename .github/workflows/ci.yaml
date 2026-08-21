@@ -8,135 +8,21 @@ on:
 permissions:
   contents: read
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
-  format:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
+  fmt:
+    uses: ./.github/workflows/_fmt.yaml
 
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - run: cargo fmt --all --check
+  msrv:
+    uses: ./.github/workflows/_msrv.yaml
 
   clippy:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: x86_64-unknown-linux-musl
-            runner: ubuntu-24.04
-          - target: aarch64-apple-darwin
-            runner: macos-26
-          - target: x86_64-pc-windows-msvc
-            runner: windows-2025
-
-    name: clippy (${{ matrix.target }})
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - run: rustup target add ${{ matrix.target }}
-
-      - uses: ./.github/actions/cargo-cache
-        with:
-          target: ${{ matrix.target }}
-          scope: clippy
-
-      - run: >
-          cargo clippy
-          --workspace
-          --all-targets
-          --all-features
-          --locked
-          --target ${{ matrix.target }}
-          -- -D warnings
+    uses: ./.github/workflows/_clippy.yaml
 
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - target: x86_64-unknown-linux-musl
-            runner: ubuntu-24.04
-          - target: aarch64-apple-darwin
-            runner: macos-26
-          - target: x86_64-pc-windows-msvc
-            runner: windows-2025
-
-    name: test (${{ matrix.target }})
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - run: rustup target add ${{ matrix.target }}
-
-      - uses: ./.github/actions/cargo-cache
-        with:
-          target: ${{ matrix.target }}
-          scope: test
-
-      - run: >
-          cargo test
-          --workspace
-          --all-targets
-          --all-features
-          --locked
-          --target ${{ matrix.target }}
+    uses: ./.github/workflows/_test.yaml
 
   docs:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - uses: ./.github/actions/cargo-cache
-        with:
-          target: x86_64-unknown-linux-gnu
-          scope: docs
-
-      - run: >
-          cargo doc
-          --workspace
-          --all-features
-          --no-deps
-          --locked
-        env:
-          RUSTDOCFLAGS: "-D warnings"
+    uses: ./.github/workflows/_doc.yaml
 
   deny:
-    strategy:
-      matrix:
-        checks:
-          - advisories
-          - bans licenses sources
-
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-
-    # Prevent sudden announcement of a new advisory from failing ci:
-    continue-on-error: ${{ matrix.checks == 'advisories' }}
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check ${{ matrix.checks }}
+    uses: ./.github/workflows/_deny.yaml

@@ -1,0 +1,49 @@
+name: test
+
+on:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-24.04
+          - target: aarch64-apple-darwin
+            runner: macos-26
+          - target: x86_64-pc-windows-msvc
+            runner: windows-2025
+
+    name: test (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: taiki-e/install-action@cargo-hack
+
+      - uses: ./.github/actions/cargo-cache
+        with:
+          target: ${{ matrix.target }}
+          scope: test
+
+      - run: >
+          cargo hack test
+          --feature-powerset
+          --no-dev-deps
+          --workspace
+          --all-targets
+          --target ${{ matrix.target }}
+          --locked

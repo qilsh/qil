@@ -4,7 +4,7 @@
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
-# TODO: rust-version =
+rust-version = "1.85"
 description = "A git-native TTRPG character sheet TUI"
 # TODO: documentation =
 readme = "README.md"
@@ -18,7 +18,7 @@ categories = ["command-line-utilities", "games"]
 name = "qil"
 version.workspace = true
 edition.workspace = true
-# TODO: rust-version.workspace = true
+rust-version.workspace = true
 description.workspace = true
 # TODO: documentation.workspace = true
 readme.workspace = true
